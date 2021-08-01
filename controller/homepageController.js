@@ -1,4 +1,4 @@
-const { Banners, Products, Categories, ChildTypes } = require('../model')
+const { Banners, Products, Categories, ChildTypes, Images } = require('../model')
 const { Op } = require('sequelize')
 async function getGiftProduct () {
   const giftProduct = await Products.findAll({
@@ -15,6 +15,7 @@ async function getProductByChildType (categoryCode) {
       code: categoryCode
     }
   })
+  const productData = {}
   const listChildType = await category.getChildTypes()
   const listNameChildType = listChildType.map(x => x.name)
   const listProduct = {}
@@ -24,21 +25,28 @@ async function getProductByChildType (categoryCode) {
       where: {
         type: { [Op.ne]: 'GIFT' }
       },
-      include: {
-        model: ChildTypes,
-        where: { id: childType.id },
-        attributes: []
-      }
+      include: [
+        {
+          model: ChildTypes,
+          where: { id: childType.id },
+          attributes: []
+        },
+        {
+          model: Images,
+          attributes: ['url']
+        }
+      ]
     })
     listProduct[name] = products
   }
-  listProduct.listNameChildType = listNameChildType
-  return listProduct
+  productData.listNameChildType = listNameChildType
+  productData.listProduct = listProduct
+  return productData
 }
 
 async function getHightLightProduct () {
   const hightLightProduct = await Products.findAll({
-    order: [['quantityPurchased', 'DESC']],
+    order: [['view', 'DESC']],
     limit: 6
   })
   return hightLightProduct

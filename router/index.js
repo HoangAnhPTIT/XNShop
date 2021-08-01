@@ -4,6 +4,7 @@ const bannerRouter = require('./bannerRouter')
 const childTypeRouter = require('./childTypeRouter')
 const homepageRouter = require('./homepageRouter')
 const userRouter = require('./userRouter')
+const searchRouter = require('./searchRouter')
 
 module.exports = [
   productRouter,
@@ -11,6 +12,6 @@ module.exports = [
   bannerRouter,
   childTypeRouter,
   homepageRouter,
-  userRouter
-
+  userRouter,
+  searchRouter
 ]

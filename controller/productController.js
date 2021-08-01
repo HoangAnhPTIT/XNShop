@@ -1,4 +1,4 @@
-const { Products, Images, Categories, ChildTypes } = require('../model')
+const { Products, Images, Categories } = require('../model')
 const { sequelize } = require('../util/connectDb')
 const { Op } = require('sequelize')
 async function createImage (req, res, product, transaction) {
@@ -74,43 +74,35 @@ async function index (req, res) {
 }
 
 function generateFilter (req) {
-  const { price, type } = req.query
-  const categoryId = req.body.categoryId
-
+  const { price } = req.query
   const priceFilter = {}
-  const typeFilter = {}
   if (price) {
     const priceRange = price.split(':')
     if (priceRange[1] === 'max') priceFilter.originalPrice = { [Op.gte]: priceRange[0] }
     else priceFilter.originalPrice = { [Op.between]: [priceRange[0], priceRange[1]] }
   }
-  if (type) {
-    typeFilter.include = {
-      model: ChildTypes,
-      attributes: [],
-      where: {
-        code: type,
-        categoryId: categoryId
-      }
-    }
-  } else {
-    typeFilter.include = {
-      model: Categories,
-      attributes: [],
-      where: {
-        code: categoryId
-      }
-    }
+
+  return priceFilter
+}
+
+function generateOrderCondition (req) {
+  const orderBy = req.query.orderBy
+  if (orderBy) {
+    const orderByCondition = orderBy.split('-')
+    const orderParams = [[orderByCondition[0], orderByCondition[1]]]
+    return orderParams
   }
-  return { priceFilter, typeFilter }
+  return ''
 }
 
 async function getProductByCollection (req, res) {
   try {
-    const { priceFilter, typeFilter } = generateFilter(req)
+    const collection = req.query.collection
+    const priceFilter = generateFilter(req)
+    const orderParams = generateOrderCondition(req)
     const products = await Products.findAll({
-      where: [priceFilter],
-      include: typeFilter.include
+      where: [priceFilter, { type: collection }],
+      order: orderParams
     })
     res.json(products)
   } catch (error) {
