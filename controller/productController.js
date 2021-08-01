@@ -1,6 +1,7 @@
 const { Products, Images, Categories } = require('../model')
 const { sequelize } = require('../util/connectDb')
 const { Op } = require('sequelize')
+const { uploadFile } = require('../util/s3')
 async function createImage (req, res, product, transaction) {
   try {
     let images = req.body.product.images
@@ -110,8 +111,23 @@ async function getProductByCollection (req, res) {
   }
 }
 
+async function uploadImages (req, res) {
+  try {
+    if (req.files) {
+      const files = req.files
+      const data = uploadFile(files)
+      res.json(data)
+    } else {
+      throw new Error('No file assign')
+    }
+  } catch (error) {
+    res.status(422).json(error.message)
+  }
+}
+
 module.exports = {
   create,
   index,
-  getProductByCollection
+  getProductByCollection,
+  uploadImages
 }
