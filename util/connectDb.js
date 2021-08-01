@@ -1,6 +1,11 @@
 const { Sequelize } = require('sequelize')
-const sequelize = new Sequelize('XNShop', 'admin', 'password', {
-  host: 'localhost',
+require('dotenv').config()
+const username = process.env.USERNAMEDB
+const database = process.env.DATABASE
+const password = process.env.PASSWORD
+const host = process.env.HOST
+const sequelize = new Sequelize(database, username, password, {
+  host: host,
   dialect: 'mysql',
   pool: {
     max: 5,

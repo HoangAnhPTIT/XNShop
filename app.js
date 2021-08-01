@@ -33,6 +33,6 @@ routers.forEach((router) => {
   app.use('/api/v1', router)
 })
 
-app.listen(process.env.PORT || 3000, () => {
+app.listen(process.env.PORT || 8000, () => {
   console.log(`App listening at http://localhost:${port}`)
 })
