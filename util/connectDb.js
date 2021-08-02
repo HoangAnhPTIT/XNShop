@@ -6,7 +6,7 @@ const password = process.env.PASSWORD
 const host = process.env.HOST
 const sequelize = new Sequelize(database, username, password, {
   host: host,
-  dialect: 'postgres',
+  dialect: 'mysql',
   pool: {
     max: 5,
     min: 0,
