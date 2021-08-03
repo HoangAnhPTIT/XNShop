@@ -4,15 +4,19 @@ const username = process.env.USERNAMEDB
 const database = process.env.DATABASE
 const password = process.env.PASSWORD
 const host = process.env.HOST
-const sequelize = new Sequelize(database, username, password, {
+const sequelize = new Sequelize({
+  database: database,
+  username: username,
+  password: password,
   host: host,
-  dialect: 'mysql',
-  pool: {
-    max: 5,
-    min: 0,
-    idle: 10000
-  },
-  ssl: true
+  port: 5432,
+  dialect: 'postgres',
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false // <<<<<<< YOU NEED THIS
+    }
+  }
 })
 
 async function synchronizingModel () {
