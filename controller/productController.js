@@ -4,12 +4,15 @@ const { Op } = require('sequelize')
 const { uploadFile } = require('../util/s3')
 async function createImage (req, res, product, transaction) {
   try {
-    let images = req.body.product.images
-    images = images.map((image) => {
-      image.productId = product.id
-      return image
+    const images = req.body.product.images
+    const imageModels = images.map((image) => {
+      const imageModel = {
+        url: image,
+        productId: product.id
+      }
+      return imageModel
     })
-    const imagesRes = await Images.bulkCreate(images, { transaction })
+    const imagesRes = await Images.bulkCreate(imageModels, { transaction })
     return imagesRes
   } catch (error) {
     res.status(422).json(error.message)
