@@ -64,12 +64,17 @@ async function create (req, res) {
 }
 
 async function index (req, res) {
+  const { limit, page } = req.query
   try {
     const products = await Products.findAll({
       include: {
         model: Images,
         attributes: ['url']
-      }
+      },
+      attributes: ['id', 'name', 'title', 'description', 'originalPrice', 'promotedPrice', 'amount', 'type', 'createdAt', 'updatedAt'],
+      offset: ((page - 1) * limit),
+      limit: limit,
+      subQuery: false
     })
     res.json(products)
   } catch (error) {
