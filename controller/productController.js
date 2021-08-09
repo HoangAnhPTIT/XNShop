@@ -30,7 +30,9 @@ async function validateChildType (category, childTypeIds) {
     return x.id.toString()
   })
   childTypeIds.forEach((childTypeId) => {
-    if (!childTypeIdInCategoy.includes(childTypeId)) { throw new Error('Child types has element invalid') }
+    if (!childTypeIdInCategoy.includes(childTypeId)) {
+      throw new Error('Child types has element invalid')
+    }
   })
 }
 
@@ -43,6 +45,10 @@ async function addProductReferent (data, childTypeIds, category, transaction) {
 
 async function create (req, res) {
   const product = req.body.product
+  product.createdAt = (new Date()).toLocaleString()
+  product.updatedAt = (new Date()).toLocaleString()
+
+  console.log(product)
   const transaction = await sequelize.transaction()
   try {
     const childTypeIds = product.childTypeIds
@@ -71,12 +77,66 @@ async function index (req, res) {
         model: Images,
         attributes: ['url']
       },
-      attributes: ['id', 'name', 'title', 'description', 'originalPrice', 'promotedPrice', 'amount', 'type', 'createdAt', 'updatedAt'],
-      offset: ((page - 1) * limit),
+      attributes: [
+        'id',
+        'name',
+        'title',
+        'description',
+        'originalPrice',
+        'promotedPrice',
+        'amount',
+        'type',
+        'createdAt',
+        'updatedAt'
+      ],
+      offset: (page - 1) * limit,
       limit: limit,
       subQuery: false
     })
     res.json(products)
+  } catch (error) {
+    res.status(422).json(error.message)
+  }
+}
+
+async function findOne (req, res) {
+  const id = req.params.id
+  try {
+    const product = await Products.findOne({
+      where: {
+        id: id
+      },
+      include: {
+        model: Images,
+        attributes: ['url']
+      },
+      attributes: [
+        'id',
+        'name',
+        'title',
+        'description',
+        'originalPrice',
+        'promotedPrice',
+        'amount',
+        'type',
+        'createdAt',
+        'updatedAt'
+      ]
+    })
+    res.json(product)
+  } catch (error) {
+    res.status(422).json(error)
+  }
+}
+
+async function update (req, res) {
+  const product = req.body.product
+  const productId = req.params.id
+  try {
+    const resp = await Products.update(product, {
+      where: { id: productId }
+    })
+    res.json({ resp, product })
   } catch (error) {
     res.status(422).json(error.message)
   }
@@ -87,8 +147,13 @@ function generateFilter (req) {
   const priceFilter = {}
   if (price) {
     const priceRange = price.split(':')
-    if (priceRange[1] === 'max') priceFilter.originalPrice = { [Op.gte]: priceRange[0] }
-    else priceFilter.originalPrice = { [Op.between]: [priceRange[0], priceRange[1]] }
+    if (priceRange[1] === 'max') {
+      priceFilter.originalPrice = { [Op.gte]: priceRange[0] }
+    } else {
+      priceFilter.originalPrice = {
+        [Op.between]: [priceRange[0], priceRange[1]]
+      }
+    }
   }
 
   return priceFilter
@@ -137,5 +202,7 @@ module.exports = {
   create,
   index,
   getProductByCollection,
-  uploadImages
+  uploadImages,
+  findOne,
+  update
 }

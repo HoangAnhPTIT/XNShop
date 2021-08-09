@@ -43,10 +43,18 @@ const Products = sequelize.define('products', {
     type: DataTypes.INTEGER,
     required: true,
     default: 0
+  },
+  createdAt: {
+    type: DataTypes.STRING,
+    required: true
+  },
+  updatedAt: {
+    type: DataTypes.STRING,
+    required: true
   }
-})
+}, { timestamps: false })
 
-Products.belongsToMany(Categories, { through: 'CategoryProducts' })
-Categories.belongsToMany(Products, { through: 'CategoryProducts' })
+Products.belongsToMany(Categories, { through: 'categoryProducts' })
+Categories.belongsToMany(Products, { through: 'categoryProducts' })
 
 module.exports = Products
