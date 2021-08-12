@@ -20,7 +20,7 @@ function s3Upload (param) {
         reject(err)
       }
       console.log(`File uploaded successfully. ${data.Location}`)
-      return resolve()
+      return resolve(data.Location)
     })
   })
 }
@@ -39,7 +39,7 @@ async function uploadFile (files) {
   })
 
   // Uploading files to the bucket
-  await Promise.all(params.map(param => {
+  return await Promise.all(params.map(param => {
     return s3Upload(param)
   }))
 }
