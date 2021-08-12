@@ -1,4 +1,4 @@
-const { Products, Images, Categories } = require('../model')
+const { Products, Images, Categories, ChildTypes } = require('../model')
 const { sequelize } = require('../util/connectDb')
 const { Op } = require('sequelize')
 const { uploadFile } = require('../util/s3')
@@ -15,25 +15,8 @@ async function createImage (req, res, product, transaction) {
     const imagesRes = await Images.bulkCreate(imageModels, { transaction })
     return imagesRes
   } catch (error) {
-    res.status(422).json(error.message)
+    throw new Error(error.message)
   }
-}
-async function validateChildType (category, childTypeIds) {
-  const childTypeInCategory = (
-    await Promise.all(
-      category.map((x) => {
-        return x.getChildTypes()
-      })
-    )
-  ).flat()
-  const childTypeIdInCategoy = childTypeInCategory.map((x) => {
-    return x.id.toString()
-  })
-  childTypeIds.forEach((childTypeId) => {
-    if (!childTypeIdInCategoy.includes(childTypeId)) {
-      throw new Error('Child types has element invalid')
-    }
-  })
 }
 
 async function addProductReferent (data, childTypeIds, category, transaction) {
@@ -45,19 +28,20 @@ async function addProductReferent (data, childTypeIds, category, transaction) {
 
 async function create (req, res) {
   const product = req.body.product
-  product.createdAt = (new Date()).toLocaleString()
-  product.updatedAt = (new Date()).toLocaleString()
+  product.createdAt = new Date().toLocaleString()
+  product.updatedAt = new Date().toLocaleString()
 
-  console.log(product)
   const transaction = await sequelize.transaction()
   try {
     const childTypeIds = product.childTypeIds
     const category = await Categories.findAll({
-      where: {
-        id: product.categoryIds
+      include: {
+        model: ChildTypes,
+        where: {
+          id: childTypeIds
+        }
       }
     })
-    validateChildType(category, childTypeIds)
     const data = await Products.create(product, { transaction })
     await addProductReferent(data, childTypeIds, category, transaction)
     const images = await createImage(req, res, data, transaction)
@@ -188,7 +172,7 @@ async function uploadImages (req, res) {
   try {
     if (req.files) {
       const files = req.files
-      const data = uploadFile(files)
+      const data = await uploadFile(files)
       res.json(data)
     } else {
       throw new Error('No file assign')
