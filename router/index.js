@@ -5,6 +5,7 @@ const childTypeRouter = require('./childTypeRouter')
 const homepageRouter = require('./homepageRouter')
 const userRouter = require('./userRouter')
 const searchRouter = require('./searchRouter')
+const adminRouter = require('./adminRouter')
 
 module.exports = [
   productRouter,
@@ -13,5 +14,6 @@ module.exports = [
   childTypeRouter,
   homepageRouter,
   userRouter,
-  searchRouter
+  searchRouter,
+  adminRouter
 ]

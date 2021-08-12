@@ -1,4 +1,4 @@
-const { Products } = require('../model')
+const { Products, Categories, ChildTypes } = require('../model')
 
 async function index (req, res) {
   const { limit, page } = req.query
@@ -8,12 +8,37 @@ async function index (req, res) {
       limit: limit,
       subQuery: false
     })
-    res.json(products)
+    const categories = await Categories.findAll({
+      attributes: ['id', 'name', 'code'],
+      include: {
+        model: ChildTypes,
+        attributes: ['id', 'name', 'code']
+
+      }
+    })
+    res.json({ products, categories })
   } catch (error) {
     res.status(422).json(error)
   }
 }
 
+async function dataForCreateProduct (req, res) {
+  try {
+    const category = await Categories.findAll({
+      attributes: ['id', 'name', 'code'],
+      include: {
+        model: ChildTypes,
+        attributes: ['id', 'name', 'code']
+
+      }
+    })
+    res.json(category)
+  } catch (error) {
+    res.status(422).json(error.message)
+  }
+}
+
 module.exports = {
-  index
+  index,
+  dataForCreateProduct
 }

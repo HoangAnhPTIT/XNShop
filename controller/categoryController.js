@@ -1,4 +1,4 @@
-const { Categories } = require('../model')
+const { Categories, ChildTypes } = require('../model')
 
 async function create (req, res) {
   const category = req.body.category
@@ -9,6 +9,7 @@ async function create (req, res) {
     res.status(422).json(error.message)
   }
 }
+
 async function update (req, res) {
   const cateroryId = req.params.id
   const category = req.body.category
@@ -23,7 +24,22 @@ async function update (req, res) {
     res.status(422).json(error.message)
   }
 }
+
+async function index (req, res) {
+  try {
+    const category = await Categories.findAll({
+      include: {
+        model: ChildTypes
+      }
+    })
+    res.json(category)
+  } catch (error) {
+    res.status(422).json(error.message)
+  }
+}
+
 module.exports = {
   create,
-  update
+  update,
+  index
 }

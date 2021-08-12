@@ -1,5 +1,8 @@
 const express = require('express')
 const adminRouter = express.Router()
-const { index } = require('../controller/adminController')
+const { index, dataForCreateProduct } = require('../controller/adminController')
 
-adminRouter.get('/index', index)
+adminRouter.get('/admin/index', index)
+adminRouter.get('/admin/categories', dataForCreateProduct)
+
+module.exports = adminRouter
