@@ -4,9 +4,10 @@ async function index (req, res) {
   const { limit, page } = req.query
   try {
     const products = await Products.findAll({
-      offset: ((page - 1) * limit),
+      offset: page,
       limit: limit,
-      subQuery: false
+      subQuery: false,
+      order: [['createdAt', 'DESC']]
     })
     const categories = await Categories.findAll({
       attributes: ['id', 'name', 'code'],
@@ -16,7 +17,8 @@ async function index (req, res) {
 
       }
     })
-    res.json({ products, categories })
+    const numberRecord = await Products.count()
+    res.json({ products, categories, numberRecord })
   } catch (error) {
     res.status(422).json(error)
   }
