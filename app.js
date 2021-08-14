@@ -17,13 +17,13 @@ app.use(resolveJwtToken)
 
 const port = 8000
 
-// synchronizingModel()
-//   .then(() => {
-//     console.log('Create table !!!')
-//   })
-//   .catch((err) => {
-//     console.log(err)
-//   })
+synchronizingModel()
+  .then(() => {
+    console.log('Create table !!!')
+  })
+  .catch((err) => {
+    console.log(err)
+  })
 
 app.post('/ping', async (req, res) => {
   res.json({ message: 'Pinggg' })

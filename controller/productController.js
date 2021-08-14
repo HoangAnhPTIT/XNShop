@@ -28,8 +28,6 @@ async function addProductReferent (data, childTypeIds, category, transaction) {
 
 async function create (req, res) {
   const product = req.body.product
-  product.createdAt = new Date().toLocaleString()
-  product.updatedAt = new Date().toLocaleString()
 
   const transaction = await sequelize.transaction()
   try {
@@ -49,6 +47,19 @@ async function create (req, res) {
     res.json({ data, images })
   } catch (error) {
     await transaction.rollback()
+    res.status(422).json(error.message)
+  }
+}
+
+async function remove (req, res) {
+  console.log(12)
+  const ids = req.body.ids
+  try {
+    const resp = await Products.destroy({
+      where: { id: ids }
+    })
+    res.json(resp)
+  } catch (error) {
     res.status(422).json(error.message)
   }
 }
@@ -188,5 +199,6 @@ module.exports = {
   getProductByCollection,
   uploadImages,
   findOne,
-  update
+  update,
+  remove
 }
