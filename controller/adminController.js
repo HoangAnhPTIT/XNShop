@@ -1,4 +1,5 @@
-const { Products, Categories, ChildTypes } = require('../model')
+const { Products, Categories, ChildTypes, Images } = require('../model')
+const childTypes = require('../model/childType')
 
 async function index (req, res) {
   const { limit, page } = req.query
@@ -7,7 +8,14 @@ async function index (req, res) {
       offset: page,
       limit: limit,
       subQuery: false,
-      order: [['createdAt', 'DESC']]
+      order: [['createdAt', 'DESC']],
+      include: [{
+        model: childTypes,
+        attributes: ['id']
+      }, {
+        model: Images,
+        attributes: ['id', 'url']
+      }]
     })
     const categories = await Categories.findAll({
       attributes: ['id', 'name', 'code'],
