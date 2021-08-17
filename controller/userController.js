@@ -6,7 +6,7 @@ const roleEnum = require('../model/enum/roleEnum')
 
 function createToken (user) {
   const tokenJwt = jwt.sign(
-    { email: user.email, name: user.name, id: user.id },
+    { email: user.email, username: user.username, id: user.id },
     'RESTFULAPIs',
     { expiresIn: '1h' }
   )
@@ -27,21 +27,21 @@ async function register (req, res) {
   const user = req.body.user
   const transaction = await sequelize.transaction()
   try {
-    if (!checkAvailableUser(user)) { throw new Error('username or email is registered') }
+    if (await checkAvailableUser(user)) { throw new Error('username or email is registered') }
     const newUser = await Users.create(user, { transaction })
     const { userRoles } = sequelize.models
     await userRoles.create(
       {
         userId: newUser.id,
-        roleId: roleEnum.admin
+        roleId: roleEnum.client
       },
       { transaction }
     )
     await transaction.commit()
-    res.json({ token: createToken(newUser) })
+    res.json({ token: createToken(newUser), status: 200 })
   } catch (error) {
     await transaction.rollback()
-    res.status(422).json(error)
+    res.json({ message: error.message, status: 422 })
   }
 }
 
@@ -54,7 +54,9 @@ async function signIn (req, res) {
   })
   if (!userDb) { res.status(401).json({ message: 'Authentication failed. User not found.' }) }
   if (!Users.comparePassword(password, userDb.password)) { res.status(401).json({ message: 'Authentication failed. Wrong password.' }) }
-  res.json(createToken(userDb))
+  const token = createToken(userDb)
+
+  res.json({ token, status: 200 })
 }
 
 async function changeInfo (req, res) {
