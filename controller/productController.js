@@ -2,13 +2,12 @@ const { Products, Images, Categories, ChildTypes } = require('../model')
 const { sequelize } = require('../util/connectDb')
 const { Op } = require('sequelize')
 const { uploadFile } = require('../util/s3')
-async function createImage (req, res, product, transaction) {
+async function createImage (images, productId, transaction) {
   try {
-    const images = req.body.product.images
     const imageModels = images.map((image) => {
       const imageModel = {
         url: image,
-        productId: product.id
+        productId: productId
       }
       return imageModel
     })
@@ -19,7 +18,15 @@ async function createImage (req, res, product, transaction) {
   }
 }
 
-async function addProductReferent (data, childTypeIds, category, transaction) {
+async function addProductReferent (data, childTypeIds, transaction) {
+  const category = await Categories.findAll({
+    include: {
+      model: ChildTypes,
+      where: {
+        id: childTypeIds
+      }
+    }
+  })
   await Promise.all([
     data.addChildTypes(childTypeIds, { transaction }),
     data.addCategories(category, { transaction })
@@ -27,24 +34,18 @@ async function addProductReferent (data, childTypeIds, category, transaction) {
 }
 
 async function create (req, res) {
-  const product = req.body.product
+  const product = req.body.newProduct
 
   const transaction = await sequelize.transaction()
   try {
     const childTypeIds = product.childTypeIds
-    const category = await Categories.findAll({
-      include: {
-        model: ChildTypes,
-        where: {
-          id: childTypeIds
-        }
-      }
-    })
+    const images = product.images
+
     const data = await Products.create(product, { transaction })
-    await addProductReferent(data, childTypeIds, category, transaction)
-    const images = await createImage(req, res, data, transaction)
+    await addProductReferent(data, childTypeIds, transaction)
+    const imagesRes = await createImage(images, data.id, transaction)
     await transaction.commit()
-    res.json({ data, images })
+    res.json({ data, images: imagesRes })
   } catch (error) {
     await transaction.rollback()
     res.status(422).json(error.message)
@@ -52,7 +53,6 @@ async function create (req, res) {
 }
 
 async function remove (req, res) {
-  console.log(12)
   const ids = req.body.ids
   try {
     const resp = await Products.destroy({
@@ -84,7 +84,7 @@ async function index (req, res) {
         'createdAt',
         'updatedAt'
       ],
-      offset: (page - 1) * limit,
+      offset: (page - 1) * limit, // Will have to change
       limit: limit,
       subQuery: false
     })
@@ -124,15 +124,51 @@ async function findOne (req, res) {
   }
 }
 
-async function update (req, res) {
-  const product = req.body.product
-  const productId = req.params.id
+async function updateImage (images, productId, transaction) {
   try {
-    const resp = await Products.update(product, {
-      where: { id: productId }
+    await Images.destroy({
+      where: { productId: productId }
     })
-    res.json({ resp, product })
+    const imagesRes = await createImage(images, productId, transaction)
+    return imagesRes
   } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
+async function update (req, res) {
+  const product = req.body.newProduct
+  const productId = req.params.id
+  const { images, childTypeIds } = product
+  const transaction = await sequelize.transaction()
+
+  try {
+    await Products.update(
+      product,
+      {
+        where: { id: productId }
+      },
+      { transaction }
+    )
+    await updateImage(images, productId, transaction)
+    const productUpdated = await Products.findByPk(productId,
+      {
+        include: [
+          {
+            model: Categories
+          },
+          {
+            model: ChildTypes
+          }
+        ]
+      })
+    await productUpdated.removeChildTypes(productUpdated.childTypes, { transaction })
+    await productUpdated.removeCategories(productUpdated.categories, { transaction })
+    await addProductReferent(productUpdated, childTypeIds, transaction)
+    await transaction.commit()
+    res.json({ message: 'Update product success' })
+  } catch (error) {
+    await transaction.rollback()
     res.status(422).json(error.message)
   }
 }
