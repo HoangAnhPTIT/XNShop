@@ -6,6 +6,7 @@ const homepageRouter = require('./homepageRouter')
 const userRouter = require('./userRouter')
 const searchRouter = require('./searchRouter')
 const adminRouter = require('./adminRouter')
+const blogRouter = require('./blogRouter')
 
 module.exports = [
   productRouter,
@@ -15,5 +16,6 @@ module.exports = [
   homepageRouter,
   userRouter,
   searchRouter,
-  adminRouter
+  adminRouter,
+  blogRouter
 ]

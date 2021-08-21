@@ -5,6 +5,7 @@ const Banners = require('./banner')
 const ChildTypes = require('./childType')
 const Users = require('./user')
 const Roles = require('./role')
+const Blogs = require('./blogs')
 
 module.exports = {
   Products,
@@ -13,5 +14,6 @@ module.exports = {
   Banners,
   ChildTypes,
   Users,
-  Roles
+  Roles,
+  Blogs
 }
