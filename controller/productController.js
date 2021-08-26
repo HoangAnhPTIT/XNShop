@@ -201,15 +201,26 @@ function generateOrderCondition (req) {
 }
 
 async function getProductByCollection (req, res) {
+  const { limit, page, type } = req.query
   try {
-    const collection = req.query.collection
     const priceFilter = generateFilter(req)
     const orderParams = generateOrderCondition(req)
-    const products = await Products.findAll({
-      where: [priceFilter, { type: collection }],
-      order: orderParams
-    })
-    res.json(products)
+    let collectionProduct
+    if (type === 'highlight') {
+      collectionProduct = await Products.findAll({
+        order: [['view', 'DESC']],
+        limit: limit,
+        offset: limit * (page - 1)
+      })
+    } else {
+      collectionProduct = await Products.findAll({
+        where: [priceFilter, { type: type }],
+        order: orderParams,
+        limit: limit,
+        offset: limit * (page - 1)
+      })
+    }
+    res.json({ status: 200, collectionProduct })
   } catch (error) {
     res.status(422).json(error.message)
   }
@@ -229,22 +240,6 @@ async function uploadImages (req, res) {
   }
 }
 
-async function getHotProducts (req, res) {
-  const { limit, page } = req.query
-  try {
-    if (page < 1) throw new Error('Page can not negative')
-
-    const hotProducts = await Products.findAll({
-      order: [['view', 'DESC']],
-      limit: limit,
-      offset: limit * (page - 1)
-    })
-    res.json({ status: 200, hotProducts })
-  } catch (error) {
-    res.status(422).json(error.message)
-  }
-}
-
 module.exports = {
   create,
   index,
@@ -252,6 +247,5 @@ module.exports = {
   uploadImages,
   findOne,
   update,
-  remove,
-  getHotProducts
+  remove
 }
