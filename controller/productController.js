@@ -215,7 +215,7 @@ async function getProductByCollection (req, res) {
     const priceFilter = generateFilter(req)
     const orderParams = generateOrderCondition(req)
     let collectionProduct
-    if (type === 'HIGHLIGHT') {
+    if (type === 'highlight') {
       collectionProduct = await Products.findAll({
         where: [priceFilter],
         order: [['purchases', 'DESC']],
