@@ -210,14 +210,22 @@ async function getProductByCollection (req, res) {
       collectionProduct = await Products.findAll({
         order: [['view', 'DESC']],
         limit: limit,
-        offset: limit * (page - 1)
+        offset: limit * (page - 1),
+        include: {
+          model: Images,
+          attributes: ['url']
+        }
       })
     } else {
       collectionProduct = await Products.findAll({
         where: [priceFilter, { type: type }],
         order: orderParams,
         limit: limit,
-        offset: limit * (page - 1)
+        offset: limit * (page - 1),
+        include: {
+          model: Images,
+          attributes: ['url']
+        }
       })
     }
     res.json({ status: 200, collectionProduct })
