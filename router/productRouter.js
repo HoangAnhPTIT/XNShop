@@ -7,7 +7,8 @@ const {
   uploadImages,
   findOne,
   update,
-  remove
+  remove,
+  getHotProducts
 } = require('../controller/productController')
 const upload = require('../util/multer')
 
@@ -18,5 +19,6 @@ productRouter.post('/product/images', upload.array('images', 10), uploadImages)
 productRouter.get('/product/:id', findOne)
 productRouter.patch('/product/:id', update)
 productRouter.delete('/product/', remove)
+productRouter.get('/products/hot-product', getHotProducts)
 
 module.exports = productRouter

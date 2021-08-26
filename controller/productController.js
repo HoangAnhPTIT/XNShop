@@ -229,6 +229,22 @@ async function uploadImages (req, res) {
   }
 }
 
+async function getHotProducts (req, res) {
+  const { limit, page } = req.query
+  try {
+    if (page < 1) throw new Error('Page can not negative')
+
+    const hotProducts = await Products.findAll({
+      order: [['view', 'DESC']],
+      limit: limit,
+      offset: limit * (page - 1)
+    })
+    res.json({ status: 200, hotProducts })
+  } catch (error) {
+    res.status(422).json(error.message)
+  }
+}
+
 module.exports = {
   create,
   index,
@@ -236,5 +252,6 @@ module.exports = {
   uploadImages,
   findOne,
   update,
-  remove
+  remove,
+  getHotProducts
 }
