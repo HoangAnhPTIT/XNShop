@@ -151,19 +151,22 @@ async function update (req, res) {
       { transaction }
     )
     await updateImage(images, productId, transaction)
-    const productUpdated = await Products.findByPk(productId,
-      {
-        include: [
-          {
-            model: Categories
-          },
-          {
-            model: ChildTypes
-          }
-        ]
-      })
-    await productUpdated.removeChildTypes(productUpdated.childTypes, { transaction })
-    await productUpdated.removeCategories(productUpdated.categories, { transaction })
+    const productUpdated = await Products.findByPk(productId, {
+      include: [
+        {
+          model: Categories
+        },
+        {
+          model: ChildTypes
+        }
+      ]
+    })
+    await productUpdated.removeChildTypes(productUpdated.childTypes, {
+      transaction
+    })
+    await productUpdated.removeCategories(productUpdated.categories, {
+      transaction
+    })
     await addProductReferent(productUpdated, childTypeIds, transaction)
     await transaction.commit()
     res.json({ message: 'Update product success' })
@@ -174,19 +177,25 @@ async function update (req, res) {
 }
 
 function generateFilter (req) {
-  const { price } = req.query
+  const { minPrice, maxPrice } = req.query
   const priceFilter = {}
-  if (price) {
-    const priceRange = price.split(':')
-    if (priceRange[1] === 'max') {
-      priceFilter.originalPrice = { [Op.gte]: priceRange[0] }
-    } else {
-      priceFilter.originalPrice = {
-        [Op.between]: [priceRange[0], priceRange[1]]
-      }
+  if (minPrice && maxPrice) {
+    priceFilter.originalPrice = {
+      [Op.between]: [minPrice, maxPrice]
+    }
+  } else if (minPrice) {
+    priceFilter.originalPrice = {
+      [Op.gte]: minPrice
+    }
+  } else if (maxPrice) {
+    priceFilter.originalPrice = {
+      [Op.lte]: maxPrice
+    }
+  } else {
+    priceFilter.originalPrice = {
+      [Op.gte]: 0
     }
   }
-
   return priceFilter
 }
 
@@ -208,7 +217,8 @@ async function getProductByCollection (req, res) {
     let collectionProduct
     if (type === 'HIGHLIGHT') {
       collectionProduct = await Products.findAll({
-        order: [['view', 'DESC']],
+        where: [priceFilter],
+        order: [['purchases', 'DESC']],
         limit: limit,
         offset: limit * (page - 1),
         include: {

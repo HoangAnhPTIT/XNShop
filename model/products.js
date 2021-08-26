@@ -41,13 +41,18 @@ const Products = sequelize.define(
     type: {
       type: DataTypes.STRING,
       required: true
-
     },
     view: {
       type: DataTypes.INTEGER,
       required: true,
       defaultValue: 0
+    },
+    purchases: {
+      type: DataTypes.INTEGER,
+      required: true,
+      defaultValue: 0
     }
+
   }
 )
 
