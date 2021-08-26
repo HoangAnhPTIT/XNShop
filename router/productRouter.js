@@ -19,6 +19,6 @@ productRouter.post('/product/images', upload.array('images', 10), uploadImages)
 productRouter.get('/product/:id', findOne)
 productRouter.patch('/product/:id', update)
 productRouter.delete('/product/', remove)
-productRouter.get('/products/hot-product', getHotProducts)
+productRouter.get('/products/highlight', getHotProducts)
 
 module.exports = productRouter
