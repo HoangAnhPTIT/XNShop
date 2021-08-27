@@ -218,7 +218,7 @@ async function getProductByCollection (req, res) {
     if (type === 'highlight') {
       collectionProduct = await Products.findAll({
         where: [priceFilter],
-        order: [['purchases', 'DESC']],
+        order: [['createdAt', 'DESC']],
         limit: limit,
         offset: limit * (page - 1),
         include: {
