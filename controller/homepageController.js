@@ -26,7 +26,7 @@ async function getHighLightProducts () {
         attributes: ['url']
       }
     ],
-    order: [['view', 'DESC']],
+    order: [['createdAt', 'DESC']],
     limit: 6
   })
   return hightLightProduct

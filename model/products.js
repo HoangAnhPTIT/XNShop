@@ -46,11 +46,6 @@ const Products = sequelize.define(
       type: DataTypes.INTEGER,
       required: true,
       defaultValue: 0
-    },
-    purchases: {
-      type: DataTypes.INTEGER,
-      required: true,
-      defaultValue: 0
     }
 
   }
