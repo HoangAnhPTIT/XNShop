@@ -5,49 +5,13 @@ const {
   ChildTypes,
   Images
 } = require('../model')
-const { Op } = require('sequelize')
 async function getGiftProduct () {
   const giftProduct = await Products.findAll({
     where: {
-      type: 'GIFT'
+      type: 'gift'
     }
   })
   return giftProduct
-}
-
-async function getProductByChildType (categoryCode) {
-  const category = await Categories.findOne({
-    where: {
-      code: categoryCode
-    }
-  })
-  const productData = {}
-  const listChildType = await category.getChildTypes()
-  const listNameChildType = listChildType.map((x) => x.name)
-  const listProduct = {}
-  for (const childType of listChildType) {
-    const name = childType.name
-    const products = await Products.findAll({
-      where: {
-        type: { [Op.ne]: 'GIFT' }
-      },
-      include: [
-        {
-          model: ChildTypes,
-          where: { id: childType.id },
-          attributes: []
-        },
-        {
-          model: Images,
-          attributes: ['url']
-        }
-      ]
-    })
-    listProduct[name] = products
-  }
-  productData.listNameChildType = listNameChildType
-  productData.listProduct = listProduct
-  return productData
 }
 
 async function getHighLightProducts () {
@@ -68,18 +32,38 @@ async function getHighLightProducts () {
   return hightLightProduct
 }
 
+async function getProductByCategories () {
+  try {
+    const productCategory = await Categories.findAll({
+      attributes: ['id', 'name'],
+      include: {
+        model: ChildTypes,
+        attributes: ['id', 'name'],
+        include: {
+          model: Products,
+          include: {
+            model: Images,
+            attributes: ['url']
+          }
+        }
+      }
+    })
+    return productCategory
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
 async function getDataHomepage (req, res) {
   try {
     const banners = await Banners.findAll({ order: ['position'], limit: 4 })
     const giftProduct = await getGiftProduct()
-    const listClockProduct = await getProductByChildType('CLOCK')
-    const listLightProduct = await getProductByChildType('LIGHT')
+    const productCategory = await getProductByCategories()
     const highLightProducts = await getHighLightProducts()
     res.json({
       banners,
       giftProduct,
-      listClockProduct,
-      listLightProduct,
+      productCategory,
       highLightProducts
     })
   } catch (error) {

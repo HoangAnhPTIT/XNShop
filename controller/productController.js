@@ -151,19 +151,22 @@ async function update (req, res) {
       { transaction }
     )
     await updateImage(images, productId, transaction)
-    const productUpdated = await Products.findByPk(productId,
-      {
-        include: [
-          {
-            model: Categories
-          },
-          {
-            model: ChildTypes
-          }
-        ]
-      })
-    await productUpdated.removeChildTypes(productUpdated.childTypes, { transaction })
-    await productUpdated.removeCategories(productUpdated.categories, { transaction })
+    const productUpdated = await Products.findByPk(productId, {
+      include: [
+        {
+          model: Categories
+        },
+        {
+          model: ChildTypes
+        }
+      ]
+    })
+    await productUpdated.removeChildTypes(productUpdated.childTypes, {
+      transaction
+    })
+    await productUpdated.removeCategories(productUpdated.categories, {
+      transaction
+    })
     await addProductReferent(productUpdated, childTypeIds, transaction)
     await transaction.commit()
     res.json({ message: 'Update product success' })
@@ -174,19 +177,25 @@ async function update (req, res) {
 }
 
 function generateFilter (req) {
-  const { price } = req.query
+  const { minPrice, maxPrice } = req.query
   const priceFilter = {}
-  if (price) {
-    const priceRange = price.split(':')
-    if (priceRange[1] === 'max') {
-      priceFilter.originalPrice = { [Op.gte]: priceRange[0] }
-    } else {
-      priceFilter.originalPrice = {
-        [Op.between]: [priceRange[0], priceRange[1]]
-      }
+  if (minPrice && maxPrice) {
+    priceFilter.originalPrice = {
+      [Op.between]: [minPrice, maxPrice]
+    }
+  } else if (minPrice) {
+    priceFilter.originalPrice = {
+      [Op.gte]: minPrice
+    }
+  } else if (maxPrice) {
+    priceFilter.originalPrice = {
+      [Op.lte]: maxPrice
+    }
+  } else {
+    priceFilter.originalPrice = {
+      [Op.gte]: 0
     }
   }
-
   return priceFilter
 }
 
@@ -201,15 +210,35 @@ function generateOrderCondition (req) {
 }
 
 async function getProductByCollection (req, res) {
+  const { limit, page, type } = req.query
   try {
-    const collection = req.query.collection
     const priceFilter = generateFilter(req)
     const orderParams = generateOrderCondition(req)
-    const products = await Products.findAll({
-      where: [priceFilter, { type: collection }],
-      order: orderParams
-    })
-    res.json(products)
+    let collectionProduct
+    if (type === 'highlight') {
+      collectionProduct = await Products.findAll({
+        where: [priceFilter],
+        order: [['purchases', 'DESC']],
+        limit: limit,
+        offset: limit * (page - 1),
+        include: {
+          model: Images,
+          attributes: ['url']
+        }
+      })
+    } else {
+      collectionProduct = await Products.findAll({
+        where: [priceFilter, { type: type }],
+        order: orderParams,
+        limit: limit,
+        offset: limit * (page - 1),
+        include: {
+          model: Images,
+          attributes: ['url']
+        }
+      })
+    }
+    res.json({ status: 200, collectionProduct })
   } catch (error) {
     res.status(422).json(error.message)
   }
@@ -229,22 +258,6 @@ async function uploadImages (req, res) {
   }
 }
 
-async function getHotProducts (req, res) {
-  const { limit, page } = req.query
-  try {
-    if (page < 1) throw new Error('Page can not negative')
-
-    const hotProducts = await Products.findAll({
-      order: [['view', 'DESC']],
-      limit: limit,
-      offset: limit * (page - 1)
-    })
-    res.json({ status: 200, hotProducts })
-  } catch (error) {
-    res.status(422).json(error.message)
-  }
-}
-
 module.exports = {
   create,
   index,
@@ -252,6 +265,5 @@ module.exports = {
   uploadImages,
   findOne,
   update,
-  remove,
-  getHotProducts
+  remove
 }

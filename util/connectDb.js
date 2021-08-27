@@ -19,8 +19,17 @@ const sequelize = new Sequelize({
   }
 })
 
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log('Connection has been established successfully.')
+  })
+  .catch((err) => {
+    console.error('Unable to connect to the database:', err)
+  })
+
 async function synchronizingModel () {
-  await sequelize.sync({ alter: true })
+  await sequelize.sync({ force: true })
 }
 
 module.exports = { sequelize, synchronizingModel }

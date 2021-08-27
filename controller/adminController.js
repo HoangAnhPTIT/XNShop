@@ -7,7 +7,6 @@ async function index (req, res) {
     const products = await Products.findAll({
       offset: page,
       limit: limit,
-      subQuery: false,
       order: [['createdAt', 'DESC']],
       include: [{
         model: childTypes,
