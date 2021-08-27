@@ -1,15 +1,23 @@
 const { DataTypes } = require('sequelize')
 const { sequelize } = require('../util/connectDb')
-
 const Blogs = sequelize.define('blogs', {
-  blogString: {
+  blogContent: {
     type: DataTypes.STRING,
     require: true
   },
-  view: {
-    type: DataTypes.INTEGER,
-    defaultValue: 0
+  title: {
+    type: DataTypes.STRING,
+    require: true
   }
+
 }, { timestamps: true })
+
+// Blogs.sync({ alter: true })
+//   .then(() => {
+//     console.log('Blogs model was updated !!!')
+//   })
+//   .catch(() => {
+//     console.log('Blogs model updates faily !!!')
+//   })
 
 module.exports = Blogs

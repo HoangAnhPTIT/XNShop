@@ -10,4 +10,13 @@ const Images = sequelize.define('images', {
 
 Images.belongsTo(Products)
 Products.hasMany(Images)
+
+// Images.sync({ alter: true })
+//   .then(() => {
+//     console.log('Images model was updated !!!')
+//   })
+//   .catch(() => {
+//     console.log('Images model updates faily !!!')
+//   })
+
 module.exports = Images
