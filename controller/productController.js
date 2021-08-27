@@ -1,7 +1,7 @@
 const { Products, Images, Categories, ChildTypes } = require('../model')
 const { sequelize } = require('../util/connectDb')
-const { Op } = require('sequelize')
 const { uploadFile } = require('../util/s3')
+const { generateFilterPrice } = require('../helper/filterHelper')
 async function createImage (images, productId, transaction) {
   try {
     const imageModels = images.map((image) => {
@@ -176,29 +176,6 @@ async function update (req, res) {
   }
 }
 
-function generateFilter (req) {
-  const { minPrice, maxPrice } = req.query
-  const priceFilter = {}
-  if (minPrice && maxPrice) {
-    priceFilter.originalPrice = {
-      [Op.between]: [minPrice, maxPrice]
-    }
-  } else if (minPrice) {
-    priceFilter.originalPrice = {
-      [Op.gte]: minPrice
-    }
-  } else if (maxPrice) {
-    priceFilter.originalPrice = {
-      [Op.lte]: maxPrice
-    }
-  } else {
-    priceFilter.originalPrice = {
-      [Op.gte]: 0
-    }
-  }
-  return priceFilter
-}
-
 function generateOrderCondition (req) {
   const orderBy = req.query.orderBy
   if (orderBy) {
@@ -210,9 +187,9 @@ function generateOrderCondition (req) {
 }
 
 async function getProductByCollection (req, res) {
-  const { limit, page, type } = req.query
+  const { limit, page, type, minPrice, maxPrice } = req.query
   try {
-    const priceFilter = generateFilter(req)
+    const priceFilter = generateFilterPrice(minPrice, maxPrice)
     const orderParams = generateOrderCondition(req)
     let collectionProduct
     if (type === 'highlight') {
