@@ -1,10 +1,14 @@
 const { Products, Categories, ChildTypes, Images } = require('../model')
+const { generateFilterPrice } = require('../helper/filterHelper')
+
 const childTypes = require('../model/childType')
 
 async function index (req, res) {
-  const { limit, page } = req.query
+  const { limit, page, categoryId, minPrice, maxPrice } = req.query
+  const priceFilter = generateFilterPrice(minPrice, maxPrice)
   try {
     const products = await Products.findAll({
+      where: [priceFilter],
       offset: page,
       limit: limit,
       order: [['createdAt', 'DESC']],
@@ -14,6 +18,12 @@ async function index (req, res) {
       }, {
         model: Images,
         attributes: ['id', 'url']
+      }, {
+        model: Categories,
+        attributes: [],
+        where: {
+          id: categoryId
+        }
       }]
     })
     const categories = await Categories.findAll({
