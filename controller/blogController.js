@@ -1,10 +1,10 @@
 const { Blogs } = require('../model')
 
 async function create (req, res) {
+  const data = req.body.blog
   try {
-    const blogString = req.body.blogString
-    const blog = await Blogs.create({ blogString })
-    res.json({ status: 200, blog })
+    await Blogs.create(data)
+    res.json({ status: 200, message: 'Create product success' })
   } catch (error) {
     res.status(422).json(error.message)
   }
