@@ -39,7 +39,7 @@ const Products = sequelize.define(
       enum: [0, 100, 900]
     },
     type: {
-      type: DataTypes.STRING,
+      type: DataTypes.ENUM('before', 'now', 'gift', 'other'),
       required: true
     },
     view: {
