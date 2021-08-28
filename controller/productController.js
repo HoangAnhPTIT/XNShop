@@ -150,7 +150,7 @@ async function update (req, res) {
       },
       { transaction }
     )
-    await updateImage(images, productId, transaction)
+    if (images.length) { await updateImage(images, productId, transaction) }
     const productUpdated = await Products.findByPk(productId, {
       include: [
         {
