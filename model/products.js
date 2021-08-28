@@ -5,7 +5,7 @@ const Products = sequelize.define(
   'products',
   {
     name: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       required: true,
       trim: true
     },
@@ -14,11 +14,11 @@ const Products = sequelize.define(
       default: ''
     },
     title: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       default: ''
     },
     description: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       trim: true,
       required: true
     },
@@ -46,6 +46,9 @@ const Products = sequelize.define(
       type: DataTypes.INTEGER,
       required: true,
       defaultValue: 0
+    },
+    nameParse: {
+      type: DataTypes.TEXT
     }
 
   }

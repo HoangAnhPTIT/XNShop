@@ -2,6 +2,7 @@ const { Products, Images, Categories, ChildTypes } = require('../model')
 const { sequelize } = require('../util/connectDb')
 const { uploadFile } = require('../util/s3')
 const { generateFilterPrice } = require('../helper/filterHelper')
+const { removeVietnameseTones } = require('../helper/languageHelper')
 async function createImage (images, productId, transaction) {
   try {
     const imageModels = images.map((image) => {
@@ -35,12 +36,11 @@ async function addProductReferent (data, childTypeIds, transaction) {
 
 async function create (req, res) {
   const product = req.body.newProduct
-
+  product.nameParse = removeVietnameseTones(product.name).toLowerCase()
   const transaction = await sequelize.transaction()
   try {
     const childTypeIds = product.childTypeIds
     const images = product.images
-
     const data = await Products.create(product, { transaction })
     await addProductReferent(data, childTypeIds, transaction)
     const imagesRes = await createImage(images, data.id, transaction)
@@ -138,6 +138,7 @@ async function updateImage (images, productId, transaction) {
 
 async function update (req, res) {
   const product = req.body.newProduct
+  product.nameParse = removeVietnameseTones(product.name).toLowerCase()
   const productId = req.params.id
   const { images, childTypeIds } = product
   const transaction = await sequelize.transaction()

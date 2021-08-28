@@ -1,6 +1,6 @@
 const { Op } = require('sequelize')
 const { Products, Categories, ChildTypes, Images } = require('../model')
-
+const { removeVietnameseTones } = require('../helper/languageHelper')
 function generateFilterPrice (minPrice, maxPrice) {
   const priceFilter = {}
   if (minPrice && maxPrice) {
@@ -65,9 +65,10 @@ async function getProductWithoutFilter (page, limit) {
 }
 
 async function getProductWithFilterName (nameFilter, page, limit) {
+  nameFilter = removeVietnameseTones(nameFilter).toLowerCase()
   const products = await Products.findAll({
     where: {
-      name: { [Op.like]: `%${nameFilter}%` }
+      nameParse: { [Op.like]: `%${nameFilter}%` }
     },
     offset: page,
     limit: limit,
@@ -87,6 +88,7 @@ async function getProductWithFilterName (nameFilter, page, limit) {
 }
 
 async function getProductWithFullFilter (nameFilter, categoryId, page, limit) {
+  nameFilter = removeVietnameseTones(nameFilter).toLowerCase()
   const products = await Products.findAll({
     where: {
       name: { [Op.like]: `%${nameFilter}%` }
