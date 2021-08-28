@@ -23,9 +23,8 @@ function generateFilterPrice (minPrice, maxPrice) {
   return priceFilter
 }
 
-async function getProductWithCategory (categoryId, priceFilter, page, limit) {
+async function getProductWithCategory (categoryId, page, limit) {
   const products = await Products.findAll({
-    where: [priceFilter],
     offset: page,
     limit: limit,
     order: [['createdAt', 'DESC']],
@@ -46,9 +45,8 @@ async function getProductWithCategory (categoryId, priceFilter, page, limit) {
   return products
 }
 
-async function getProductWithoutCategory (priceFilter, page, limit) {
+async function getProductWithoutFilter (page, limit) {
   const products = await Products.findAll({
-    where: [priceFilter],
     offset: page,
     limit: limit,
     order: [['createdAt', 'DESC']],
@@ -66,9 +64,57 @@ async function getProductWithoutCategory (priceFilter, page, limit) {
   return products
 }
 
+async function getProductWithFilterName (nameFilter, page, limit) {
+  const products = await Products.findAll({
+    where: {
+      name: { [Op.like]: `%${nameFilter}%` }
+    },
+    offset: page,
+    limit: limit,
+    order: [['createdAt', 'DESC']],
+    include: [{
+      model: ChildTypes,
+      attributes: ['id']
+    }, {
+      model: Images,
+      attributes: ['id', 'url']
+    }, {
+      model: Categories,
+      attributes: []
+    }]
+  })
+  return products
+}
+
+async function getProductWithFullFilter (nameFilter, categoryId, page, limit) {
+  const products = await Products.findAll({
+    where: {
+      name: { [Op.like]: `%${nameFilter}%` }
+    },
+    offset: page,
+    limit: limit,
+    order: [['createdAt', 'DESC']],
+    include: [{
+      model: ChildTypes,
+      attributes: ['id']
+    }, {
+      model: Images,
+      attributes: ['id', 'url']
+    }, {
+      model: Categories,
+      attributes: [],
+      where: {
+        id: categoryId
+      }
+    }]
+  })
+  return products
+}
+
 module.exports = {
   generateFilterPrice,
   getProductWithCategory,
-  getProductWithoutCategory
-
+  getProductWithoutFilter,
+  getProductWithFilterName,
+  getProductWithFullFilter
 }

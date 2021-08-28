@@ -1,13 +1,17 @@
 const { Products, Categories, ChildTypes } = require('../model')
-const { generateFilterPrice, getProductWithCategory, getProductWithoutCategory } = require('../helper/filterHelper')
+const { getProductWithCategory, getProductWithoutFilter, getProductWithFilterName, getProductWithFullFilter } = require('../helper/filterHelper')
+
+async function getProduct (categoryId, nameFilter, page, limit) {
+  if (categoryId && nameFilter) return await getProductWithFullFilter(nameFilter, categoryId, page, limit)
+  else if (categoryId) return await getProductWithCategory(categoryId, page, limit)
+  else if (nameFilter) return await getProductWithFilterName(nameFilter, page, limit)
+  else return getProductWithoutFilter(page, limit)
+}
 
 async function index (req, res) {
-  const { limit, page, categoryId, minPrice, maxPrice } = req.query
-  const priceFilter = generateFilterPrice(minPrice, maxPrice)
+  const { limit, page, categoryId, nameFilter } = req.query
   try {
-    let products
-    if (categoryId) products = await getProductWithCategory(categoryId, priceFilter, page, limit)
-    else products = await getProductWithoutCategory(priceFilter, page, limit)
+    const products = await getProduct(categoryId, nameFilter, page, limit)
     const categories = await Categories.findAll({
       attributes: ['id', 'name', 'code'],
       include: {
