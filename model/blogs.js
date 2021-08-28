@@ -2,11 +2,11 @@ const { DataTypes } = require('sequelize')
 const { sequelize } = require('../util/connectDb')
 const Blogs = sequelize.define('blogs', {
   blogContent: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     require: true
   },
   title: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     require: true
   }
 
