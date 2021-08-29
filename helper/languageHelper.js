@@ -28,6 +28,14 @@ function removeVietnameseTones (str) {
   return str
 }
 
+function convertToSlug (text) {
+  return removeVietnameseTones(text)
+    .toLowerCase()
+    .replace(/[^\w ]+/g, '')
+    .replace(/ +/g, '-')
+}
+
 module.exports = {
-  removeVietnameseTones
+  removeVietnameseTones,
+  convertToSlug
 }

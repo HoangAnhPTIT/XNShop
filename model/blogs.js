@@ -8,6 +8,10 @@ const Blogs = sequelize.define('blogs', {
   title: {
     type: DataTypes.TEXT,
     require: true
+  },
+  slugTitle: {
+    type: DataTypes.TEXT,
+    require: true
   }
 
 }, { timestamps: true })

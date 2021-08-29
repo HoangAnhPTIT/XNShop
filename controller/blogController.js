@@ -1,7 +1,8 @@
 const { Blogs } = require('../model')
-
+const { convertToSlug } = require('../helper/languageHelper')
 async function create (req, res) {
   const data = req.body.blog
+  data.slugTitle = convertToSlug(data.title)
   try {
     await Blogs.create(data)
     res.json({ status: 200, message: 'Create product success' })
@@ -32,10 +33,11 @@ async function findOne (req, res) {
 
 async function update (req, res) {
   const blogId = req.params.id
-  const blogString = req.body.blogString
+  const data = req.body.blog
+  data.slugTitle = convertToSlug(data.title)
   try {
     await Blogs.update(
-      { blogString },
+      data,
       {
         where: {
           id: blogId
