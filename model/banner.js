@@ -10,12 +10,9 @@ const Banners = sequelize.define('banners', {
     type: DataTypes.STRING,
     required: true
   },
-  linkA: {
+  link: {
     type: DataTypes.STRING,
     required: true
-  },
-  linkB: {
-    type: DataTypes.STRING
   },
   imageUrl: {
     type: DataTypes.STRING,
@@ -26,5 +23,13 @@ const Banners = sequelize.define('banners', {
     required: true
   }
 })
+
+// Banners.sync({ alter: true })
+//   .then(() => {
+//     console.log('Banners model was updated !!!')
+//   })
+//   .catch(() => {
+//     console.log('Banners model updates faily !!!')
+//   })
 
 module.exports = Banners
