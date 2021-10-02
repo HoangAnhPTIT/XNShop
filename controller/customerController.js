@@ -1,4 +1,4 @@
-const { Customers, CustomerProducts } = require('../model')
+const { Customers, CustomerProducts, Products } = require('../model')
 const { sequelize } = require('../util/connectDb')
 
 async function addInfor (req, res) {
@@ -20,7 +20,7 @@ async function addInfor (req, res) {
     } else {
       await CustomerProducts.create({
         productId,
-        customerId: customerData.customerId
+        customerId: customerDuplicate.id
       }, { transaction })
     }
     await transaction.commit()
@@ -33,13 +33,18 @@ async function addInfor (req, res) {
 
 async function getInfoCustomer (req, res) {
   try {
-    const customers = await Customers.findAll({
-      include: {
-        model: CustomerProducts
+    const customerProducts = await CustomerProducts.findAll({
+      include: [{
+        model: Customers,
+        attributes: ['name', 'phoneNumber']
       },
-      order: [[CustomerProducts, 'status', 'asc'], [CustomerProducts, 'updatedAt', 'desc']]
+      {
+        model: Products,
+        attributes: ['id', 'name']
+      }],
+      order: [['status', 'asc'], ['updatedAt', 'desc']]
     })
-    res.json(customers)
+    res.json(customerProducts)
   } catch (err) {
     res.json(err)
   }
