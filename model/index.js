@@ -6,6 +6,8 @@ const ChildTypes = require('./childType')
 const Users = require('./user')
 const Roles = require('./role')
 const Blogs = require('./blogs')
+const Customers = require('./customer')
+const CustomerProducts = require('./customerProducts')
 
 module.exports = {
   Products,
@@ -15,5 +17,7 @@ module.exports = {
   ChildTypes,
   Users,
   Roles,
-  Blogs
+  Blogs,
+  Customers,
+  CustomerProducts
 }

@@ -7,6 +7,7 @@ const userRouter = require('./userRouter')
 const searchRouter = require('./searchRouter')
 const adminRouter = require('./adminRouter')
 const blogRouter = require('./blogRouter')
+const customerRouter = require('./customerRouter')
 
 module.exports = [
   productRouter,
@@ -17,5 +18,6 @@ module.exports = [
   userRouter,
   searchRouter,
   adminRouter,
-  blogRouter
+  blogRouter,
+  customerRouter
 ]

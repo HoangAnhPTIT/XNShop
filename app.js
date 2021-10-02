@@ -4,7 +4,7 @@ const app = express()
 const morgan = require('morgan')
 const routers = require('./router/index')
 const resolveJwtToken = require('./middleware/jwt')
-
+const { synchronizingModel } = require('./util/connectDb')
 app.use(cors())
 app.use(express.json())
 app.use(
@@ -14,6 +14,14 @@ app.use(
 )
 app.use(morgan('combined'))
 app.use(resolveJwtToken)
+
+// synchronizingModel()
+//   .then(() => {
+//     console.log('Create table !!!')
+//   })
+//   .catch((err) => {
+//     console.log(err)
+//   })
 
 const port = 8000
 

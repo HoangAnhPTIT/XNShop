@@ -29,7 +29,7 @@ sequelize
   })
 
 async function synchronizingModel () {
-  await sequelize.sync({ force: true })
+  await sequelize.sync({ alter: true })
 }
 
 module.exports = { sequelize, synchronizingModel }

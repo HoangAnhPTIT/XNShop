@@ -48,7 +48,8 @@ const Products = sequelize.define(
       defaultValue: 0
     },
     nameParse: {
-      type: DataTypes.TEXT
+      type: DataTypes.TEXT,
+      allowNull: true
     }
 
   }
