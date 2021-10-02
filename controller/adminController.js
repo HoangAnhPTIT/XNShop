@@ -17,7 +17,6 @@ async function index (req, res) {
       include: {
         model: ChildTypes,
         attributes: ['id', 'name', 'code']
-
       }
     })
     const numberRecord = await Products.count()
