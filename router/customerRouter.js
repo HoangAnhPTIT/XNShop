@@ -4,6 +4,6 @@ const { addInfor, getInfoCustomer, changeStatusInfo } = require('../controller/c
 
 customerRouter.post('/customer/add-info', addInfor)
 customerRouter.get('/customer/get-info', getInfoCustomer)
-customerRouter.patch('/customer/update-info', changeStatusInfo)
+customerRouter.patch('/customer/update-info/:id', changeStatusInfo)
 
 module.exports = customerRouter

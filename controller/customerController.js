@@ -51,13 +51,14 @@ async function getInfoCustomer (req, res) {
 }
 
 async function changeStatusInfo (req, res) {
-  const { productId, customerId, status } = req.body
+  const { status } = req.body
+  const id = req.params.id
   try {
     await CustomerProducts.update({
       status
     }, {
       where: {
-        productId, customerId
+        id
       }
     })
     res.json({ message: 'update status ok', status: 200 })
